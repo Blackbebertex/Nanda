@@ -6,6 +6,8 @@ const DEMO_TOKEN  = "demo-token";
 
 let sessionId = null;
 let isRecording = false;
+let currentVoiceAudio = null;
+let visemeTimeouts = [];
 
 // ---- Utility -----------------------------------------------
 function now() {
@@ -32,10 +34,14 @@ async function startSession() {
     const data = await apiPost("/v1/session/start", { language: "en" });
     sessionId = data.session_id;
     setStatus("Connected · Session " + sessionId, true);
+    
+    // Initial welcome message from backend
     appendBotMessage(
       "👋 Good morning, Riya! I'm Artha, your personal wealth advisor. You saved **22%** of your income this month — above your usual 18%! Want a quick update or the full breakdown?",
       null
     );
+    // Play voice for the initial welcome
+    playVoiceAndAnimate("Good morning, Riya! I'm Artha, your personal wealth advisor. You saved 22% of your income this month — above your usual 18%! Want a quick update or the full breakdown?", "en");
   } catch (e) {
     setStatus("Backend offline – check uvicorn is running on port 8000", false);
     appendBotMessage("⚠️ I couldn't connect to the backend. Please make sure the FastAPI server is running on http://localhost:8000", null);
@@ -59,6 +65,15 @@ function switchTab(name) {
 
 // ---- Clear chat --------------------------------------------
 function clearChat() {
+  // Stop active voice / animations
+  if (currentVoiceAudio) {
+    currentVoiceAudio.pause();
+    currentVoiceAudio = null;
+  }
+  visemeTimeouts.forEach(clearTimeout);
+  visemeTimeouts = [];
+  applyMouthShape(document.getElementById("avatar-mouth"), "closed");
+
   document.getElementById("chat-messages").innerHTML = "";
   document.getElementById("chat-suggestions").style.display = "flex";
   startSession();
@@ -83,8 +98,17 @@ function appendBotMessage(text, recommendation) {
   const bubble = document.createElement("div");
   bubble.className = "msg-bubble bot";
 
-  // Convert **bold** markdown
-  bubble.innerHTML = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  // Safely parse **bold** markdown to avoid XSS
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  parts.forEach(part => {
+    if (part.startsWith("**") && part.endsWith("**") && part.length >= 4) {
+      const strong = document.createElement("strong");
+      strong.textContent = part.slice(2, -2);
+      bubble.appendChild(strong);
+    } else if (part.length > 0) {
+      bubble.appendChild(document.createTextNode(part));
+    }
+  });
 
   const timeEl = document.createElement("div");
   timeEl.className = "msg-time";
@@ -99,7 +123,6 @@ function appendBotMessage(text, recommendation) {
   row.appendChild(bubble);
   document.getElementById("chat-messages").appendChild(row);
   scrollChat();
-  animateAvatar();
 }
 
 function appendUserMessage(text) {
@@ -176,11 +199,69 @@ function scrollChat() {
   el.scrollTop = el.scrollHeight;
 }
 
-// ---- Avatar mouth animation --------------------------------
-function animateAvatar() {
+// ---- Lipsync Avatar Viseme Controller ----------------------
+function playVoiceAndAnimate(text, language) {
+  // Clear running instances
+  if (currentVoiceAudio) {
+    try { currentVoiceAudio.pause(); } catch(e){}
+    currentVoiceAudio = null;
+  }
+  visemeTimeouts.forEach(clearTimeout);
+  visemeTimeouts = [];
+  
   const mouth = document.getElementById("avatar-mouth");
-  mouth.classList.add("talking");
-  setTimeout(() => mouth.classList.remove("talking"), 2500);
+  applyMouthShape(mouth, "closed");
+  
+  // Call backend voice synthesize API
+  apiPost("/v1/voice/synthesize", { text: text, language: language })
+    .then(data => {
+      // 1. Play the audio channel
+      currentVoiceAudio = new Audio(data.audio_url);
+      currentVoiceAudio.play().catch(e => console.log("Audio playback blocked/failed:", e));
+      
+      // 2. Synchronize mouth shapes using server timing cues
+      data.viseme_cues.forEach(cue => {
+        const timer = setTimeout(() => {
+          applyMouthShape(mouth, cue.shape);
+        }, cue.atMs);
+        visemeTimeouts.push(timer);
+      });
+    })
+    .catch(err => {
+      console.warn("Could not load lipsync voice stream:", err);
+    });
+}
+
+function applyMouthShape(mouth, shape) {
+  if (!mouth) return;
+  mouth.style.transition = "all 0.1s ease-in-out";
+  
+  if (shape === "closed") {
+    mouth.style.height = "2px";
+    mouth.style.borderRadius = "0";
+    mouth.style.width = "14px";
+    mouth.style.borderBottom = "2px solid rgba(255,255,255,0.6)";
+  } else if (shape === "open_wide") {
+    mouth.style.height = "10px";
+    mouth.style.borderRadius = "50%";
+    mouth.style.width = "12px";
+    mouth.style.borderBottom = "3px solid var(--accent-light)";
+  } else if (shape === "narrow") {
+    mouth.style.height = "5px";
+    mouth.style.borderRadius = "50%";
+    mouth.style.width = "6px";
+    mouth.style.borderBottom = "3px solid var(--accent-light)";
+  } else if (shape === "open_mild") {
+    mouth.style.height = "5px";
+    mouth.style.borderRadius = "40%";
+    mouth.style.width = "14px";
+    mouth.style.borderBottom = "3px solid var(--accent-light)";
+  } else if (shape === "wide_smile") {
+    mouth.style.height = "3px";
+    mouth.style.borderRadius = "0 0 10px 10px";
+    mouth.style.width = "16px";
+    mouth.style.borderBottom = "3px solid var(--accent-light)";
+  }
 }
 
 // ---- Send message ------------------------------------------
@@ -207,11 +288,13 @@ async function sendMessage() {
 
     hideTyping();
 
-    // Build a smarter demo reply if backend returns generic mock
-    const replyText = buildSmartReply(text, data.reply_text, lang);
-    const rec = data.recommendation_ids?.length ? buildMockRec(text) : null;
+    const replyText = data.reply_text;
+    const rec = data.recommendation; // Dynamically parsed from backend recommendation object
 
     appendBotMessage(replyText, rec);
+    
+    // Play voice and lipsync anims in sync with reply text
+    playVoiceAndAnimate(replyText.replace(/\*\*|👋|📊|🎯|💡|📋|❌|⚠️|💰|🎉/g, ""), lang);
   } catch (e) {
     hideTyping();
     appendBotMessage("❌ Couldn't reach the backend. Is the FastAPI server running? (`uvicorn main:app --port 8000`)", null);
@@ -221,48 +304,6 @@ async function sendMessage() {
 function sendSuggestion(text) {
   document.getElementById("user_input").value = text;
   sendMessage();
-}
-
-// ---- Smart demo reply builder ------------------------------
-const responses = {
-  "how am i doing": "You're doing great this month, Riya! 🎉 You saved **22%** of your income (₹12,760), which is above your 18% average. Your SIPs are on track for the **First Car** goal, and you have ₹38,200 in your savings account.",
-  "sip": "Your SIP of **₹5,000/month** into the Hybrid Equity Fund is active and on track. You've accumulated **₹74,200** so far. At this rate, you'll hit the ₹1,20,000 milestone in ~10 months.",
-  "recommendation": "Based on your profile, I have one suggestion: your **Fixed Deposit of ₹1.5L** is earning 6.1% and has been untouched for 14 months. A short-horizon hybrid fund could realistically target higher returns given your 2-year goal horizon and moderate risk profile. Want to know why?",
-  "risk profile": "Your risk profile was updated to **Moderate** in March 2026 after your salary hike of 18%. This means you're comfortable with some market exposure for potentially higher returns over 2–3 year horizons.",
-  "spending": "This month, dining-out spending is up **₹3,200** vs your average — mostly weekday lunches. Not a problem, just flagging it since it's the 3rd week in a row. Your savings rate (22%) is still healthy.",
-  "goal": "Your **First Car** goal is 48% funded (₹2,40,000 of ₹5,00,000). You're on track for June 2027 if SIPs continue. Your Europe Vacation goal (March 2026) is at risk — only 29% funded with 9 months to go.",
-  "rm": "I'll connect you with your RM, **Priya Sharma**, right away. I'll send her a summary of our conversation and your current portfolio. She'll reach out within 24 hours. 📋",
-  "hindi": "Bilkul! Main aapko Hindi mein bata sakti hoon. Aapki savings rate is mahine 22% hai — yeh aapke average se behtar hai. Aapka SIP bhi First Car goal ke liye sahi track pe hai. 🎯",
-  "theek": "Bilkul sahi soch hai. Main aapki RM, Priya Sharma, ko ek summary bhej deti hoon — aap unse seedha baat kar sakti hain. 📋",
-  "why": "Three reasons for this recommendation: 1) Your FD has been dormant for **14 months**, 2) Your goal horizon is **2 years** — matching a hybrid fund's risk window, 3) Your risk profile moved from conservative to **moderate** in March. None of this is a push to invest more — just to place what you have more efficiently.",
-  "default": "I understand, Riya. Based on your current financial data, you're in a healthy position. Your savings rate is above average and your SIPs are active. Is there a specific aspect of your finances you'd like to explore?"
-};
-
-function buildSmartReply(userText, backendReply, lang) {
-  const lower = userText.toLowerCase();
-  if (lang === "hi" || lower.includes("theek") || lower.includes("hindi")) return responses["theek"];
-  for (const [key, val] of Object.entries(responses)) {
-    if (key !== "default" && lower.includes(key)) return val;
-  }
-  // If backend returned something useful (not just the echo), use it
-  if (backendReply && !backendReply.startsWith("You said:")) return backendReply;
-  return responses["default"];
-}
-
-function buildMockRec(userText) {
-  if (userText.toLowerCase().includes("recommendation") || userText.toLowerCase().includes("suggest")) {
-    return {
-      reasonCode: "DORMANT_FD_REALLOCATION",
-      facts: {
-        "Account": "Fixed Deposit – HDFC (acc_fd_882)",
-        "Current Rate": "6.1% p.a.",
-        "Months Dormant": "14",
-        "Matching Goal": "First Car (Jun 2027)",
-        "Risk Profile": "Moderate",
-      },
-    };
-  }
-  return null;
 }
 
 // ---- Language detection ------------------------------------
@@ -279,8 +320,8 @@ function toggleVoice() {
     btn.classList.add("recording");
     btn.textContent = "⏹️";
     document.getElementById("user_input").placeholder = "Listening…";
-    // Simulate voice after 2 seconds
-    setTimeout(() => stopVoice("How am I doing this month?"), 2500);
+    // Simulate voice transcript after 2 seconds
+    setTimeout(() => stopVoice("How am I doing this month?"), 2000);
   } else {
     stopVoice(null);
   }
