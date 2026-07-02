@@ -1,0 +1,1 @@
+def log_event(event_data): print("AUDIT:", event_data)

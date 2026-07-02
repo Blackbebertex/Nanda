@@ -1,0 +1,1 @@
+def retrieve_facts(query): return ["Fact 1: FD interest is 6.1%"]

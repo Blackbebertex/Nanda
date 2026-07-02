@@ -1,0 +1,1 @@
+def compute_signals(transactions): return {"savings_rate": 0.22}

@@ -1,0 +1,8 @@
+{
+  "dashboard": "ARTHA AI Pilot & Production",
+  "metrics": [
+    {"name": "API Latency", "threshold_ms": 500, "action": "alert_engineering"},
+    {"name": "Hallucination Incidents", "threshold_count": 0, "action": "block_service_alert_compliance"},
+    {"name": "Consent Failures", "threshold_percent": 2, "action": "alert_product_team"}
+  ]
+}

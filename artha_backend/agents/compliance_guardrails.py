@@ -1,0 +1,1 @@
+def check_safety(response): return True

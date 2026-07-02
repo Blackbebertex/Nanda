@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  artha_gateway:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=production
+      - LOG_LEVEL=info
+  artha_frontend:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ../artha_frontend:/usr/share/nginx/html

@@ -1,0 +1,1 @@
+def generate_response(intent): return "Here is your wealth guidance."

@@ -1,0 +1,1 @@
+def trigger_handoff(user_id, reason): return {"status": "escalated"}

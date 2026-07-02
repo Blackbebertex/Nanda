@@ -1,0 +1,7 @@
+{
+  "name": "artha-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npx serve -s . -l 3000"
+  }
+}

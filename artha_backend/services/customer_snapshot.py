@@ -1,0 +1,1 @@
+def get_snapshot(user_id): return {"savings": 50000, "debts": 1000}

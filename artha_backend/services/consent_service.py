@@ -1,0 +1,1 @@
+def check_consent(user_id): return True
