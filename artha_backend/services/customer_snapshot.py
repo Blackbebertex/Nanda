@@ -29,7 +29,8 @@ def get_snapshot(user_id):
                     savings_amt += acc.get("balance", 0)
             
             data["savings"] = savings_amt
-            data["debts"] = 0 # No active debt in the mock data
+            if "debts" not in data:
+                data["debts"] = 0
             return data
         except Exception as e:
             print(f"Error loading snapshot for {target_id}: {e}")

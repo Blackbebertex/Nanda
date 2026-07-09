@@ -1,17 +1,30 @@
 """
 ARTHA AI – FastAPI Backend
-Integrated Agentic Flow + 7-Step Wealth Prompt Chain
+All AI powered exclusively by Google Gemini via shared GeminiService.
 """
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load .env from repo root (IDBI/) and artha_backend/ if present
+_backend_dir = Path(__file__).resolve().parent
+_repo_root = _backend_dir.parent
+load_dotenv(_repo_root / ".env")
+load_dotenv(_backend_dir / ".env")
+
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 from typing import List, Optional, Literal
 import datetime
 from datetime import timezone
+import json
+import os
 import re
 import secrets
 
+from services.config import get_settings
 from services.customer_snapshot import get_snapshot
 from services.behaviour_engine import compute_signals
 from services.advisory_engine import get_recommendation
@@ -19,7 +32,7 @@ from services.consent_service import check_consent
 from services.audit_logger import log_event, log_chain_event
 from services.rm_handoff import trigger_handoff
 from services.product_catalog import get_catalog_json
-from services.session_store import add_session, get_history, get_language, append_turn
+from services.session_store import add_session, get_history, get_language, append_turn, validate_session
 from services.pilot_config import is_wealth_chain_enabled, can_run_deep_chain, record_deep_chain
 from services.execution_gateway import submit_execution_intent
 from services.database import init_db
@@ -30,6 +43,8 @@ from agents.wealth_chain.router import classify_route
 from agents.wealth_chain.orchestrator import run_wealth_chain, get_plan
 from agents.wealth_chain.schemas import AuditDecision, ChainMetadata
 from agents.llm_telemetry import get_recent_events
+from agents.registry import get_agent, list_agents
+from services.gemini_service import get_gemini_service
 
 # ──────────────────────────────────────────────
 # Pydantic Schemas
@@ -85,11 +100,66 @@ class WealthPlanRequest(BaseModel):
     session_id: Optional[str] = None
     message_text: str = "Generate my full wealth plan"
 
-VALID_TOKENS = {"demo-token": {"customer_id": "cust_001", "name": "Riya Kapoor"}}
+VALID_TOKENS = {
+    "demo-token": {
+        "customer_id": "cust_001",
+        "name": "Riya Kapoor",
+        "role": "customer",
+        "persona": "First Jobber · Moderate",
+    },
+    "demo-token-2": {
+        "customer_id": "cust_002",
+        "name": "Rahul Sharma",
+        "role": "customer",
+        "persona": "Young Professional · Aggressive",
+    },
+    "demo-token-3": {
+        "customer_id": "cust_003",
+        "name": "Priya Mehta",
+        "role": "customer",
+        "persona": "Senior Professional · Conservative",
+    },
+    "demo-token-4": {
+        "customer_id": "cust_004",
+        "name": "Arjun Patel",
+        "role": "customer",
+        "persona": "Startup Employee · Growth",
+    },
+    "demo-token-5": {
+        "customer_id": "cust_005",
+        "name": "Sneha Iyer",
+        "role": "customer",
+        "persona": "Parent · Moderate",
+    },
+    "demo-token-6": {
+        "customer_id": "cust_006",
+        "name": "Vikram Singh",
+        "role": "customer",
+        "persona": "Government Employee · Conservative",
+    },
+    "admin-demo-token": {"customer_id": "admin", "name": "Admin", "role": "admin"},
+}
 
 
 def validate_bank_token(token: str) -> Optional[dict]:
     return VALID_TOKENS.get(token)
+
+
+def require_session(session_id: str, customer_id: str) -> None:
+    if not validate_session(session_id, customer_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid or expired session. Start a new session first.",
+        )
+
+
+def require_plan_access(plan, customer_id: str) -> None:
+    owner = (plan.raw_steps or {}).get("customer_id")
+    if owner and owner != customer_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this wealth plan.",
+        )
 
 
 async def handle_message(
@@ -189,20 +259,12 @@ async def handle_message(
     )
 
 
-app = FastAPI(title="ARTHA API Gateway", version="2.0.0")
-
-ALLOWED_ORIGINS = [
-    "http://localhost:8000",
-    "http://localhost:3000",
-    "http://localhost:5500",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5500",
-    "http://127.0.0.1:8000",
-]
+app = FastAPI(title="ARTHA API Gateway", version="3.0.0")
+settings = get_settings()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
+    allow_origins=settings.allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -227,26 +289,72 @@ def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depen
     return user_info
 
 
+def get_admin_user(user=Depends(get_current_user)):
+    if user.get("role") != "admin" and settings.admin_token != "bypass":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required.",
+        )
+    return user
+
+
 @app.get("/health")
 def health():
+    gemini = get_gemini_service()
     return {
         "status": "ok",
         "service": "ARTHA API Gateway",
-        "version": "2.0.0",
+        "version": "3.0.0",
+        "ai_provider": "google_gemini",
+        "gemini_configured": gemini.is_configured,
+        "gemini_model": settings.gemini_model,
         "wealth_chain_enabled": is_wealth_chain_enabled("cust_001"),
         "time": datetime.datetime.now(timezone.utc).isoformat(),
     }
 
 
+@app.get("/v1/ai/status")
+def ai_status(user=Depends(get_current_user)):
+    gemini = get_gemini_service()
+    return {
+        "provider": "google_gemini",
+        "configured": gemini.is_configured,
+        "model": settings.gemini_model,
+        "agents": list_agents(),
+    }
+
+
+@app.get("/v1/agents")
+def agents_list(user=Depends(get_current_user)):
+    return {"agents": [{"name": k, "description": v} for k, v in list_agents().items()]}
+
+
+@app.get("/v1/demo/customers")
+def list_demo_customers():
+    """Public demo roster for the frontend profile switcher."""
+    return {
+        "customers": [
+            {
+                "token": token,
+                "customer_id": info["customer_id"],
+                "name": info["name"],
+                "persona": info.get("persona", ""),
+            }
+            for token, info in VALID_TOKENS.items()
+            if info.get("role") == "customer"
+        ]
+    }
+
+
 @app.get("/v1/admin/llm-telemetry")
-def llm_telemetry(user=Depends(get_current_user)):
+def llm_telemetry(user=Depends(get_admin_user)):
     return {"events": get_recent_events(50)}
 
 
 @app.post("/v1/session/start", response_model=SessionStartResponse)
 def start_session(req: SessionStartRequest, user=Depends(get_current_user)):
     session_id = "sess_" + secrets.token_urlsafe(16)
-    add_session(session_id, req.language)
+    add_session(session_id, req.language, user["customer_id"])
     return SessionStartResponse(
         session_id=session_id,
         customer_id=user["customer_id"],
@@ -259,13 +367,16 @@ def get_customer_snapshot(user=Depends(get_current_user)):
     if not check_consent(user["customer_id"]):
         raise HTTPException(status_code=403, detail="Active consent required")
     try:
-        return get_snapshot(user["customer_id"])
+        snapshot = get_snapshot(user["customer_id"])
+        snapshot["active_recommendation"] = get_recommendation(snapshot)
+        return snapshot
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 
 @app.get("/v1/conversation/history")
 def conversation_history(session_id: str, user=Depends(get_current_user)):
+    require_session(session_id, user["customer_id"])
     return {"session_id": session_id, "turns": get_history(session_id)}
 
 
@@ -293,6 +404,7 @@ def handoff_rm(req: HandoffRequest, user=Depends(get_current_user)):
 
 @app.post("/v1/conversation/message", response_model=MessageResponse)
 async def conversation_message(req: MessageRequest, user=Depends(get_current_user)):
+    require_session(req.session_id, user["customer_id"])
     try:
         return await handle_message(
             req.session_id,
@@ -308,7 +420,9 @@ async def conversation_message(req: MessageRequest, user=Depends(get_current_use
 async def wealth_plan(req: WealthPlanRequest, user=Depends(get_current_user)):
     session_id = req.session_id or ("sess_" + secrets.token_urlsafe(8))
     if req.session_id is None:
-        add_session(session_id, "en")
+        add_session(session_id, "en", user["customer_id"])
+    else:
+        require_session(session_id, user["customer_id"])
     result = await handle_message(session_id, user["customer_id"], req.message_text, "deep")
     plan_id = result.chain_metadata.plan_id if result.chain_metadata else None
     plan = get_plan(plan_id) if plan_id else None
@@ -325,6 +439,7 @@ def get_wealth_plan(plan_id: str, user=Depends(get_current_user)):
     plan = get_plan(plan_id)
     if not plan:
         raise HTTPException(status_code=404, detail="Plan not found")
+    require_plan_access(plan, user["customer_id"])
     return {"plan_id": plan_id, "steps": plan.raw_steps}
 
 
@@ -352,3 +467,36 @@ async def voice_synthesize(req: VoiceSynthesisRequest, user=Depends(get_current_
         duration_ms=details["duration_ms"],
         viseme_cues=details["viseme_cues"],
     )
+
+
+@app.post("/v1/conversation/message/stream")
+async def conversation_message_stream(req: MessageRequest, user=Depends(get_current_user)):
+    """SSE streaming chat via Gemini ChatAgent."""
+    require_session(req.session_id, user["customer_id"])
+    if not check_consent(user["customer_id"]):
+        async def denied():
+            yield f"data: {json.dumps({'error': 'consent_required'})}\n\n"
+        return StreamingResponse(denied(), media_type="text/event-stream")
+
+    snapshot = get_snapshot(user["customer_id"])
+    signals = compute_signals(snapshot.get("transactions", []))
+    rec = get_recommendation(snapshot)
+    history = get_history(req.session_id)
+    chat = get_agent("chat")
+
+    async def event_stream():
+        try:
+            async for chunk in chat.stream(
+                user_text=req.message_text,
+                customer_context=snapshot,
+                signals=signals,
+                recommendation=rec,
+                history=history,
+                customer_id=user["customer_id"],
+            ):
+                yield f"data: {json.dumps({'token': chunk})}\n\n"
+            yield f"data: {json.dumps({'done': True})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream")

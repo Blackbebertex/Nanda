@@ -1,0 +1,64 @@
+{
+  "customerId": "cust_004",
+  "name": "Arjun Patel",
+  "riskProfile": "Growth",
+  "language": "en",
+  "consent": {
+    "consentId": "consent_004",
+    "scope": ["BALANCE", "TRANSACTIONS", "SUMMARY"],
+    "expiresAt": "2027-12-31"
+  },
+  "accounts": [
+    {
+      "accountId": "acc_savings_004",
+      "fipId": "KOTAK-FIP",
+      "type": "SAVINGS",
+      "balance": 62000
+    },
+    {
+      "accountId": "acc_mf_404",
+      "fipId": "ZERODHA-FIP",
+      "type": "MF_SIP",
+      "fundName": "Midcap Equity Fund",
+      "sipAmount": 12000,
+      "balance": 186000,
+      "linkedGoalId": "goal_startup_2029"
+    },
+    {
+      "accountId": "acc_mf_405",
+      "fipId": "GROWW-FIP",
+      "type": "MF_SIP",
+      "fundName": "Technology Sector Fund",
+      "sipAmount": 5000,
+      "balance": 72000,
+      "linkedGoalId": "goal_startup_2029"
+    }
+  ],
+  "goals": [
+    {
+      "goalId": "goal_startup_2029",
+      "name": "Startup Seed Fund",
+      "targetAmount": 1500000,
+      "currentAmount": 258000,
+      "targetDate": "2029-12-01"
+    },
+    {
+      "goalId": "goal_laptop_2026",
+      "name": "Work Laptop Upgrade",
+      "targetAmount": 120000,
+      "currentAmount": 95000,
+      "targetDate": "2026-11-01"
+    }
+  ],
+  "transactions": [
+    {"txnId": "t_040", "accountId": "acc_savings_004", "amount": 95000.0, "type": "CREDIT", "category": "Salary", "narration": "Startup salary KOTAK", "date": "2026-05-31"},
+    {"txnId": "t_041", "accountId": "acc_savings_004", "amount": -18000.0, "type": "DEBIT", "category": "Rent", "narration": "PG rent Bangalore", "date": "2026-06-01"},
+    {"txnId": "t_042", "accountId": "acc_savings_004", "amount": -17000.0, "type": "DEBIT", "category": "Investment", "narration": "SIP ZERODHA + GROWW", "date": "2026-06-05"},
+    {"txnId": "t_043", "accountId": "acc_savings_004", "amount": -3200.0, "type": "DEBIT", "category": "Dining", "narration": "Team lunches", "date": "2026-06-14"},
+    {"txnId": "t_044", "accountId": "acc_savings_004", "amount": -1500.0, "type": "DEBIT", "category": "Transport", "narration": "Cab to office", "date": "2026-06-20"},
+    {"txnId": "t_045", "accountId": "acc_savings_004", "amount": 98000.0, "type": "CREDIT", "category": "Salary", "narration": "Startup salary KOTAK", "date": "2026-06-30"},
+    {"txnId": "t_046", "accountId": "acc_savings_004", "amount": -18000.0, "type": "DEBIT", "category": "Rent", "narration": "PG rent Bangalore", "date": "2026-07-01"},
+    {"txnId": "t_047", "accountId": "acc_savings_004", "amount": -17000.0, "type": "DEBIT", "category": "Investment", "narration": "SIP ZERODHA + GROWW", "date": "2026-07-02"},
+    {"txnId": "t_048", "accountId": "acc_savings_004", "amount": -2400.0, "type": "DEBIT", "category": "Dining", "narration": "Weekend brunch", "date": "2026-07-04"}
+  ]
+}

@@ -12,7 +12,6 @@
 </head>
 <body>
 
-  <!-- Sidebar / Left Panel -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icon">₳</div>
@@ -23,25 +22,25 @@
       <div class="persona-avatar" id="sidebar-avatar">R</div>
       <div class="persona-info">
         <div class="persona-name" id="persona-name">Riya Kapoor</div>
-        <div class="persona-tag">First Jobber · Moderate Risk</div>
+        <div class="persona-tag" id="persona-tag">Moderate Risk</div>
       </div>
       <div class="status-dot" title="Active session"></div>
     </div>
 
     <nav class="sidebar-nav">
-      <button class="nav-item active" id="nav-chat" onclick="switchTab('chat')">
+      <button class="nav-item active" id="nav-chat" type="button" onclick="switchTab('chat')">
         <span class="nav-icon">💬</span> Chat with Artha
       </button>
-      <button class="nav-item" id="nav-portfolio" onclick="switchTab('portfolio')">
+      <button class="nav-item" id="nav-portfolio" type="button" onclick="switchTab('portfolio')">
         <span class="nav-icon">📊</span> Portfolio
       </button>
-      <button class="nav-item" id="nav-goals" onclick="switchTab('goals')">
+      <button class="nav-item" id="nav-goals" type="button" onclick="switchTab('goals')">
         <span class="nav-icon">🎯</span> Goals
       </button>
-      <button class="nav-item" id="nav-insights" onclick="switchTab('insights')">
+      <button class="nav-item" id="nav-insights" type="button" onclick="switchTab('insights')">
         <span class="nav-icon">💡</span> Spending Insights
       </button>
-      <button class="nav-item" id="nav-plan" onclick="switchTab('plan')">
+      <button class="nav-item" id="nav-plan" type="button" onclick="switchTab('plan')">
         <span class="nav-icon">📋</span> Wealth Plan
       </button>
     </nav>
@@ -49,168 +48,269 @@
     <div class="sidebar-footer">
       <div class="health-score-label">Financial Health Score</div>
       <div class="health-score-bar">
-        <div class="health-score-fill" style="width:72%"></div>
+        <div class="health-score-fill" id="sidebar-health-fill" style="width:72%"></div>
       </div>
-      <div class="health-score-number">72 / 100</div>
+      <div class="health-score-number" id="sidebar-health-number">72 / 100</div>
     </div>
   </aside>
 
-  <!-- Main Content -->
-  <main class="main-content" id="main-content">
-
-    <!-- Chat Tab -->
-    <section class="tab-panel active" id="tab-chat">
-      <div class="chat-header">
-        <div class="chat-avatar-wrap">
-          <div class="chat-avatar-glow"></div>
-          <div class="avatar-3d" id="avatar-3d">
-            <div class="avatar-face">
-              <div class="avatar-eyes">
-                <div class="eye left-eye"><div class="pupil"></div></div>
-                <div class="eye right-eye"><div class="pupil"></div></div>
+  <main class="workspace-shell" id="main-content">
+    <section class="workspace-left">
+      <header class="dashboard-topbar">
+        <div class="greeting-block">
+          <p class="eyebrow" id="dashboard-greeting">Good Morning, Riya! 👋</p>
+          <h1>Here's your financial overview for today.</h1>
+          <p class="topbar-subcopy">A quick snapshot of your wealth, goals, and recommendations.</p>
+        </div>
+        <div class="topbar-actions">
+          <select id="user-switch-select" class="profile-pill" style="background:transparent;border:1px solid var(--border-glow);padding:5px;color:var(--text-primary);cursor:pointer;">
+            <option value="demo-token" style="background:#111">Riya Kapoor</option>
+          </select>
+          <button class="topbar-icon" type="button" aria-label="Search" onclick="switchTab('insights')">🔍</button>
+          <div style="position:relative;">
+            <button class="topbar-icon bell" id="btn-notifications" type="button" aria-label="Notifications">🔔</button>
+            <span id="notif-badge" class="notif-badge" style="display:none;position:absolute;top:-5px;right:-5px;background:red;color:white;font-size:10px;padding:2px 5px;border-radius:10px;">0</span>
+            <div id="notification-panel" style="display:none;position:absolute;top:40px;right:0;width:280px;background:#111;border:1px solid var(--border-glow);border-radius:12px;z-index:100;box-shadow:0 10px 20px rgba(0,0,0,0.5);">
+              <div style="padding:12px;border-bottom:1px solid var(--border-glow);display:flex;justify-content:space-between;align-items:center;">
+                <h4 style="margin:0;color:var(--accent);">Notifications</h4>
+                <button id="close-notif" type="button" style="background:none;border:none;color:var(--text-primary);cursor:pointer;">&times;</button>
               </div>
-              <div class="avatar-mouth" id="avatar-mouth"></div>
+              <div id="notification-list" style="max-height:300px;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;"></div>
             </div>
-            <div class="avatar-idle-ring"></div>
+          </div>
+          <div class="profile-pill" id="profile-pill">
+            <span class="profile-avatar" id="topbar-avatar">RK</span>
+            <span id="topbar-name">Riya Kapoor</span>
           </div>
         </div>
-        <div class="chat-header-info">
-          <h1 class="chat-title">Artha <span class="online-badge">● Online</span></h1>
-          <p class="chat-subtitle">Your personal wealth advisor</p>
-        </div>
-        <div class="lang-chip" id="lang-chip">EN</div>
-        <div class="header-actions">
-          <button class="action-btn" onclick="clearChat()" title="Clear chat">🗑️</button>
-          <button class="action-btn" onclick="toggleSidebar()" title="Menu">☰</button>
-        </div>
-      </div>
+      </header>
 
-      <div class="chat-messages" id="chat-messages">
-        <!-- Messages injected by JS -->
-      </div>
+      <section class="hero-grid">
+        <article class="hero-card welcome-card">
+          <div class="hero-avatar-shell">
+            <div class="hero-avatar-orbit"></div>
+            <div class="hero-avatar">A</div>
+          </div>
+          <div class="hero-copy">
+            <p class="hero-kicker" id="hero-kicker">Hi Riya! I'm Artha AI</p>
+            <h2>Your AI-powered wealth advisor.</h2>
+            <p>How can I help you today?</p>
+            <div class="hero-actions">
+              <button class="hero-btn primary" type="button" onclick="switchTab('chat')">Chat with Artha</button>
+              <button class="hero-btn" type="button" onclick="toggleVoice()">Voice Chat</button>
+            </div>
+          </div>
+        </article>
 
-      <div class="chat-suggestions" id="chat-suggestions">
-        <button class="suggestion-chip" onclick="sendSuggestion('How am I doing this month?')">How am I doing this month?</button>
-        <button class="suggestion-chip" onclick="sendSuggestion('Show my SIP status')">Show my SIP status</button>
-        <button class="suggestion-chip" onclick="sendSuggestion('Any recommendations for me?')">Any recommendations?</button>
-        <button class="suggestion-chip" onclick="requestFullPlan()">Full wealth plan</button>
-        <button class="suggestion-chip" onclick="sendSuggestion('What is my risk profile?')">My risk profile</button>
-      </div>
+        <article class="hero-card score-card">
+          <div class="score-header">
+            <span>Financial Health Score</span>
+            <strong id="score-card-label">Good</strong>
+          </div>
+          <div class="score-ring">
+            <div class="score-ring-inner">
+              <span id="main-health-score">78</span>
+              <small>/100</small>
+            </div>
+          </div>
+          <p id="main-health-copy">You are doing great. Keep investing and monitor your expenses.</p>
+          <a href="#tab-insights">View Details →</a>
+        </article>
+      </section>
 
-      <div class="chain-progress hidden" id="chain-progress">
-        <div class="chain-progress-label">Running 7-step wealth audit…</div>
-        <div class="chain-steps" id="chain-steps">
-          <span class="chain-step" data-step="1">Analyst</span>
-          <span class="chain-step" data-step="2">Goals</span>
-          <span class="chain-step" data-step="3">Portfolio</span>
-          <span class="chain-step" data-step="4">Red Team</span>
-          <span class="chain-step" data-step="5">Blue Team</span>
-          <span class="chain-step" data-step="6">Avatar</span>
-          <span class="chain-step" data-step="7">Auditor</span>
-        </div>
-      </div>
+      <section class="metric-grid">
+        <article class="metric-card">
+          <span>Total Net Worth</span>
+          <strong id="main-net-worth">—</strong>
+        </article>
+        <article class="metric-card">
+          <span>Investments</span>
+          <strong id="main-investments">—</strong>
+        </article>
+        <article class="metric-card">
+          <span>Savings</span>
+          <strong id="main-savings">—</strong>
+        </article>
+        <article class="metric-card warn">
+          <span>Liabilities</span>
+          <strong id="main-liabilities">—</strong>
+        </article>
+      </section>
 
-      <div class="audit-badge hidden" id="audit-badge"></div>
+      <section class="insight-strip">
+        <article class="strip-card">
+          <h3>Top Insights For You</h3>
+          <ul class="strip-list" id="insight-strip-list">
+            <li>Loading insights…</li>
+          </ul>
+          <a href="#tab-insights">View All Insights →</a>
+        </article>
+        <article class="strip-card">
+          <h3>Recommended For You</h3>
+          <ul class="strip-list compact" id="recommendation-strip-list">
+            <li>Loading recommendations…</li>
+          </ul>
+        </article>
+      </section>
 
-      <div class="chat-input-area">
-        <div class="input-row">
-          <button class="mic-btn" id="mic-btn" title="Voice input" onclick="toggleVoice()">🎤</button>
-          <input
-            type="text"
-            id="user_input"
-            class="chat-input"
-            placeholder="Ask Artha anything about your finances…"
-            autocomplete="off"
-          />
-          <button class="send-btn" id="send-btn" onclick="sendMessage()">
-            <span class="send-icon">➤</span>
-          </button>
-        </div>
-        <div class="input-disclaimer">
-          ARTHA provides guidance and information, not regulated investment advice.
-          <a href="#" style="color:var(--accent-light)">Learn more</a>
-        </div>
-      </div>
+      <section class="dashboard-panels">
+        <section class="tab-panel dashboard-card" id="tab-portfolio">
+          <div class="panel-header panel-header-slim">
+            <h2>Portfolio Overview</h2>
+          </div>
+          <div class="portfolio-grid">
+            <div class="port-card">
+              <div class="port-card-label">Total Net Worth</div>
+              <div class="port-card-value" id="portfolio-net-worth">—</div>
+            </div>
+            <div class="port-card">
+              <div class="port-card-label">Mutual Funds (SIP)</div>
+              <div class="port-card-value" id="portfolio-mf">—</div>
+            </div>
+            <div class="port-card">
+              <div class="port-card-label">Fixed Deposits</div>
+              <div class="port-card-value" id="portfolio-fd">—</div>
+            </div>
+            <div class="port-card">
+              <div class="port-card-label">Savings Account</div>
+              <div class="port-card-value" id="portfolio-savings">—</div>
+            </div>
+          </div>
+          <div class="allocation-section">
+            <h3>Asset Allocation</h3>
+            <div class="allocation-bar">
+              <div class="alloc-segment fd" id="alloc-fd" style="width:46%">FD</div>
+              <div class="alloc-segment mf" id="alloc-mf" style="width:23%">MF</div>
+              <div class="alloc-segment savings" id="alloc-savings" style="width:12%">SAV</div>
+              <div class="alloc-segment other" id="alloc-other" style="width:19%">OTHER</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel dashboard-card" id="tab-goals">
+          <div class="panel-header panel-header-slim">
+            <h2>My Goals</h2>
+            <button class="panel-cta" id="btn-add-goal" type="button">+ Add Goal</button>
+          </div>
+          <div class="goals-list" id="goals-list"></div>
+        </section>
+
+        <section class="tab-panel dashboard-card" id="tab-insights">
+          <div class="panel-header panel-header-slim">
+            <h2>Insights &amp; Analytics</h2>
+          </div>
+          <div class="insights-grid" id="insights-grid"></div>
+          <div class="savings-rate-section">
+            <h3>Savings Rate</h3>
+            <div class="savings-rate-bar">
+              <div class="savings-rate-fill" id="savings-rate-fill" style="width:22%"></div>
+            </div>
+            <div class="savings-rate-label" id="savings-rate-label">Calculating…</div>
+          </div>
+        </section>
+
+        <section class="tab-panel dashboard-card" id="tab-plan">
+          <div class="panel-header panel-header-slim">
+            <h2>Audited Wealth Plan</h2>
+            <p class="panel-subtitle">7-step prompt chain · Chief Wealth Officer audit gate</p>
+          </div>
+          <div id="wealth-plan-content" class="wealth-plan-content">
+            <p class="plan-empty">Request a <strong>Full wealth plan</strong> from the chat to generate your audited plan.</p>
+          </div>
+        </section>
+      </section>
     </section>
 
-    <!-- Portfolio Tab -->
-    <section class="tab-panel" id="tab-portfolio">
-      <div class="panel-header"><h2>📊 Portfolio Overview</h2></div>
-      <div class="portfolio-grid">
-        <div class="port-card">
-          <div class="port-card-label">Total Net Worth</div>
-          <div class="port-card-value" id="portfolio-net-worth">₹3,24,000</div>
-          <div class="port-card-trend up">+12.4% this year</div>
-        </div>
-        <div class="port-card">
-          <div class="port-card-label">Mutual Funds (SIP)</div>
-          <div class="port-card-value" id="portfolio-mf">₹74,200</div>
-          <div class="port-card-trend up">+8.1%</div>
-        </div>
-        <div class="port-card">
-          <div class="port-card-label">Fixed Deposits</div>
-          <div class="port-card-value" id="portfolio-fd">₹1,50,000</div>
-          <div class="port-card-trend neutral">6.1% p.a.</div>
-        </div>
-        <div class="port-card">
-          <div class="port-card-label">Savings Account</div>
-          <div class="port-card-value" id="portfolio-savings">₹38,200</div>
-          <div class="port-card-trend neutral">Emergency fund</div>
-        </div>
-      </div>
-      <div class="allocation-section">
-        <h3>Asset Allocation</h3>
-        <div class="allocation-bar">
-          <div class="alloc-segment fd" id="alloc-fd" style="width:46%" title="FD – 46%">FD 46%</div>
-          <div class="alloc-segment mf" id="alloc-mf" style="width:23%" title="MF – 23%">MF 23%</div>
-          <div class="alloc-segment savings" id="alloc-savings" style="width:12%" title="Savings – 12%">SAV 12%</div>
-          <div class="alloc-segment other" id="alloc-other" style="width:19%" title="Other – 19%">OTHER 19%</div>
-        </div>
-      </div>
-    </section>
+    <section class="workspace-right">
+      <section class="tab-panel chat-panel active" id="tab-chat">
+        <div class="chat-shell">
+          <div class="chat-header">
+            <div class="chat-avatar-wrap">
+              <div class="chat-avatar-glow"></div>
+              <div class="avatar-3d" id="avatar-3d">
+                <div class="avatar-face">
+                  <div class="avatar-eyes">
+                    <div class="eye left-eye"><div class="pupil"></div></div>
+                    <div class="eye right-eye"><div class="pupil"></div></div>
+                  </div>
+                  <div class="avatar-mouth" id="avatar-mouth"></div>
+                </div>
+                <div class="avatar-idle-ring"></div>
+              </div>
+            </div>
+            <div class="chat-header-info">
+              <h1 class="chat-title">Artha <span class="online-badge">● Online</span></h1>
+              <p class="chat-subtitle">Your personal wealth advisor</p>
+            </div>
+            <div class="lang-chip" id="lang-chip">EN</div>
+            <div class="header-actions">
+              <button class="action-btn" type="button" onclick="clearChat()" title="Clear chat">🗑️</button>
+              <button class="action-btn" type="button" onclick="toggleSidebar()" title="Menu">☰</button>
+            </div>
+          </div>
 
-    <!-- Goals Tab -->
-    <section class="tab-panel" id="tab-goals">
-      <div class="panel-header"><h2>🎯 Financial Goals</h2></div>
-      <div class="goals-list" id="goals-list">
-        <!-- Dynamically rendered goal cards -->
-      </div>
-    </section>
+          <div class="chat-thread">
+            <div class="chat-messages" id="chat-messages"></div>
 
-    <!-- Spending Insights Tab -->
-    <section class="tab-panel" id="tab-insights">
-      <div class="panel-header"><h2>💡 Spending Insights – June 2026</h2></div>
-      <div class="insights-grid" id="insights-grid">
-        <!-- Dynamically rendered insight cards -->
-      </div>
-      <div class="savings-rate-section">
-        <h3>Savings Rate</h3>
-        <div class="savings-rate-bar">
-          <div class="savings-rate-fill" id="savings-rate-fill" style="width:22%"></div>
+            <div class="chat-suggestions" id="chat-suggestions">
+              <button class="suggestion-chip" type="button" onclick="sendSuggestion('How am I doing this month?')">How am I doing this month?</button>
+              <button class="suggestion-chip" type="button" onclick="sendSuggestion('Show my SIP status')">Show my SIP status</button>
+              <button class="suggestion-chip" type="button" onclick="sendSuggestion('Any recommendations for me?')">Any recommendations?</button>
+              <button class="suggestion-chip" type="button" onclick="requestFullPlan()">Full wealth plan</button>
+              <button class="suggestion-chip" type="button" onclick="sendSuggestion('What is my risk profile?')">My risk profile</button>
+            </div>
+
+            <div class="chain-progress hidden" id="chain-progress">
+              <div class="chain-progress-label">Running 7-step wealth audit…</div>
+              <div class="chain-steps" id="chain-steps">
+                <span class="chain-step" data-step="1">Analyst</span>
+                <span class="chain-step" data-step="2">Goals</span>
+                <span class="chain-step" data-step="3">Portfolio</span>
+                <span class="chain-step" data-step="4">Red Team</span>
+                <span class="chain-step" data-step="5">Blue Team</span>
+                <span class="chain-step" data-step="6">Avatar</span>
+                <span class="chain-step" data-step="7">Auditor</span>
+              </div>
+            </div>
+
+            <div class="audit-badge hidden" id="audit-badge"></div>
+
+            <div class="chat-input-area">
+              <div class="input-row">
+                <button class="mic-btn" id="mic-btn" type="button" title="Voice input" onclick="toggleVoice()">🎤</button>
+                <input type="text" id="user_input" class="chat-input" placeholder="Ask Artha anything about your finances…" autocomplete="off" />
+                <button class="send-btn" id="send-btn" type="button" onclick="sendMessage()">
+                  <span class="send-icon">➤</span>
+                </button>
+              </div>
+              <div class="input-disclaimer">
+                ARTHA provides guidance and information, not regulated investment advice.
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="savings-rate-label" id="savings-rate-label">22% this month &nbsp;·&nbsp; avg 18% &nbsp;·&nbsp; <span style="color:var(--green)">↑ Good job!</span></div>
-      </div>
+      </section>
     </section>
-
-    <!-- Wealth Plan Tab -->
-    <section class="tab-panel" id="tab-plan">
-      <div class="panel-header">
-        <h2>📋 Audited Wealth Plan</h2>
-        <p class="panel-subtitle">7-step prompt chain · Chief Wealth Officer audit gate</p>
-      </div>
-      <div id="wealth-plan-content" class="wealth-plan-content">
-        <p class="plan-empty">Request a <strong>Full wealth plan</strong> from the chat to generate your audited plan.</p>
-      </div>
-    </section>
-
   </main>
 
-  <!-- Status Bar (bottom) -->
   <div class="status-bar" id="status-bar">
     <span id="status-text">Connecting to ARTHA…</span>
     <span id="backend-status" class="status-dot-small disconnected" title="Backend status"></span>
   </div>
 
+  <div id="add-goal-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:2000;align-items:center;justify-content:center;">
+    <div style="background:#111;padding:24px;border-radius:12px;border:1px solid var(--border-glow);width:320px;">
+      <h3 style="margin-top:0;margin-bottom:16px;color:var(--accent);">Add New Goal</h3>
+      <input type="text" id="new-goal-name" placeholder="Goal Name" style="width:100%;padding:10px;margin-bottom:12px;background:rgba(255,255,255,0.05);border:1px solid var(--border-glow);color:white;border-radius:6px;box-sizing:border-box;" />
+      <input type="number" id="new-goal-amount" placeholder="Target Amount" style="width:100%;padding:10px;margin-bottom:12px;background:rgba(255,255,255,0.05);border:1px solid var(--border-glow);color:white;border-radius:6px;box-sizing:border-box;" />
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
+        <button id="btn-cancel-goal" type="button" style="padding:8px 16px;background:transparent;border:1px solid var(--text-secondary);color:white;border-radius:6px;cursor:pointer;">Cancel</button>
+        <button id="btn-save-goal" type="button" style="padding:8px 16px;background:var(--accent);border:none;color:black;font-weight:bold;border-radius:6px;cursor:pointer;">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

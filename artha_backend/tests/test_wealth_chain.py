@@ -46,7 +46,9 @@ class TestWealthChain(unittest.TestCase):
         self.assertEqual(meta.path, "deep")
         self.assertGreaterEqual(meta.confidence, 70)
         self.assertIn(state.step7.decision, (AuditDecision.APPROVE, AuditDecision.REVISE, AuditDecision.REJECT))
-        self.assertEqual(len(state.raw_steps), 7)
+        step_keys = [k for k in state.raw_steps if k.startswith("step")]
+        self.assertEqual(len(step_keys), 7)
+        self.assertEqual(state.raw_steps.get("customer_id"), "cust_001")
 
     def test_profile_fixtures_load(self):
         base = os.path.join(os.path.dirname(__file__), "fixtures", "profiles")

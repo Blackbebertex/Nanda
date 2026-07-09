@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 
 _histories: Dict[str, List[Dict[str, str]]] = {}
 _languages: Dict[str, str] = {}
+_customers: Dict[str, str] = {}
 _redis = None
 
 
@@ -23,20 +24,38 @@ def _get_redis():
         return None
 
 
-def add_session(session_id: str, language: str) -> None:
+def add_session(session_id: str, language: str, customer_id: str) -> None:
     if len(_histories) >= 100:
         oldest = next(iter(_histories))
         _histories.pop(oldest, None)
         _languages.pop(oldest, None)
+        _customers.pop(oldest, None)
     _histories[session_id] = []
     _languages[session_id] = language
+    _customers[session_id] = customer_id
     r = _get_redis()
     if r:
         try:
             r.set(f"session:lang:{session_id}", language)
             r.set(f"session:hist:{session_id}", "[]")
+            r.set(f"session:cust:{session_id}", customer_id)
         except Exception:
             pass
+
+
+def validate_session(session_id: str, customer_id: str) -> bool:
+    stored = _customers.get(session_id)
+    if stored:
+        return stored == customer_id
+    r = _get_redis()
+    if r:
+        try:
+            stored = r.get(f"session:cust:{session_id}")
+            if stored:
+                return stored == customer_id
+        except Exception:
+            pass
+    return False
 
 
 def get_history(session_id: str) -> List[Dict[str, str]]:
@@ -65,7 +84,7 @@ def get_language(session_id: str) -> str:
 
 def append_turn(session_id: str, user: str, bot: str, language: Optional[str] = None) -> None:
     if session_id not in _histories:
-        add_session(session_id, language or "en")
+        return
     _histories[session_id].append({"user": user, "bot": bot})
     if len(_histories[session_id]) > 8:
         _histories[session_id] = _histories[session_id][-8:]

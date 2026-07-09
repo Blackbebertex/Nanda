@@ -43,6 +43,19 @@ class TestArthaServices(unittest.TestCase):
         self.assertEqual(snap["riskProfile"], "Moderate")
         self.assertGreater(len(snap.get("accounts", [])), 0)
 
+    def test_additional_demo_customers(self):
+        for cid, name in [
+            ("cust_002", "Rahul Sharma"),
+            ("cust_003", "Priya Mehta"),
+            ("cust_004", "Arjun Patel"),
+            ("cust_005", "Sneha Iyer"),
+            ("cust_006", "Vikram Singh"),
+        ]:
+            snap = get_snapshot(cid)
+            self.assertEqual(snap["name"], name)
+            self.assertTrue(check_consent(cid))
+            self.assertGreater(len(snap.get("accounts", [])), 0)
+
     def test_real_behaviour_engine(self):
         snap = get_snapshot("cust_001")
         txs = snap.get("transactions", [])
