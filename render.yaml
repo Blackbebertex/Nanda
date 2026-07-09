@@ -2,7 +2,6 @@ services:
   - type: web
     name: artha-frontend
     runtime: static
-    plan: free
     branch: main
     rootDir: artha_frontend
     buildCommand: npm run build
