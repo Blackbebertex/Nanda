@@ -1,4 +1,13 @@
-// Runtime config — override BACKEND_URL for production (Render sets via build script)
+// Auto-generated at build — do not edit
 window.ARTHA_CONFIG = {
-  BACKEND_URL: window.ARTHA_BACKEND_URL || "http://localhost:8000",
+  BACKEND_URL: "http://localhost:8000",
 };
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var override = params.get("api") || params.get("backend");
+  if (override) {
+    window.ARTHA_CONFIG.BACKEND_URL = override.startsWith("http")
+      ? override.replace(/\/$/, "")
+      : "https://" + override.replace(/\/$/, "");
+  }
+})();

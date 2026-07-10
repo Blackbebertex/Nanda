@@ -1,5 +1,5 @@
 /**
- * Injects production BACKEND_URL into config.js for Render static deploy.
+ * Bakes BACKEND_URL into config.js at build time (Vercel, Render, local).
  */
 const fs = require("fs");
 const path = require("path");
@@ -9,20 +9,36 @@ const raw =
   process.env.RENDER_EXTERNAL_URL ||
   process.env.VITE_BACKEND_URL ||
   "";
+
+const isVercel = Boolean(process.env.VERCEL);
+
+if (isVercel && !raw) {
+  console.error(
+    "\n[artha-frontend] FATAL: Set BACKEND_URL in Vercel → Project → Settings → Environment Variables\n" +
+      "  Example: https://artha-api-lsli.onrender.com\n"
+  );
+  process.exit(1);
+}
+
 const backendUrl = raw
   ? (raw.startsWith("http") ? raw : `https://${raw}`)
   : "http://localhost:8000";
 
-if (process.env.VERCEL && !raw) {
-  console.warn("WARNING: BACKEND_URL is not set — frontend will use localhost.");
-}
-
-const config = `// Auto-generated at build time
+const config = `// Auto-generated at build — do not edit
 window.ARTHA_CONFIG = {
   BACKEND_URL: "${backendUrl.replace(/\/$/, "")}",
 };
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var override = params.get("api") || params.get("backend");
+  if (override) {
+    window.ARTHA_CONFIG.BACKEND_URL = override.startsWith("http")
+      ? override.replace(/\\/$/, "")
+      : "https://" + override.replace(/\\/$/, "");
+  }
+})();
 `;
 
 const out = path.join(__dirname, "..", "config.js");
 fs.writeFileSync(out, config, "utf8");
-console.log("Wrote config.js with BACKEND_URL =", backendUrl);
+console.log("[artha-frontend] config.js → BACKEND_URL =", backendUrl);

@@ -1,12 +1,14 @@
 {
   "name": "artha-frontend",
   "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "dev": "npx serve -s . -l 3000",
+    "dev": "npm run build && npx serve -s . -l 3000",
     "start": "npx serve -s . -l ${PORT:-3000}",
+    "build": "node scripts/inject-config.js",
+    "vercel-build": "node scripts/inject-config.js",
     "lint": "node --check script.js && node --check config.js",
     "check": "npm run lint",
-    "validate": "node -e \"const fs=require('fs'); ['index.html', 'script.js', 'style.css', 'config.js'].forEach(f => { if (!fs.existsSync(f)) throw new Error(`Missing ${f}`); }); console.log('Frontend assets OK');\" && npm run lint",
-    "build": "node scripts/inject-config.js"
+    "validate": "node -e \"const fs=require('fs'); ['index.html', 'script.js', 'style.css', 'config.js', 'vercel.json'].forEach(f => { if (!fs.existsSync(f)) throw new Error('Missing '+f); }); console.log('Frontend assets OK');\" && npm run lint"
   }
 }

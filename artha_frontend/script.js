@@ -1,7 +1,26 @@
 // ============================================================
 // ARTHA AI – Frontend ↔ FastAPI Backend Connector
 // ============================================================
-const BACKEND_URL = (window.ARTHA_CONFIG && window.ARTHA_CONFIG.BACKEND_URL) || "http://localhost:8000";
+const BACKEND_URL =
+  (window.ARTHA_CONFIG && window.ARTHA_CONFIG.BACKEND_URL) || "http://localhost:8000";
+const IS_LOCAL_BACKEND = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(BACKEND_URL);
+
+function backendConnectionHelp() {
+  if (IS_LOCAL_BACKEND) {
+    return (
+      "⚠️ I couldn't connect to the backend. Start the API locally:\n" +
+      "`cd artha_backend && uvicorn main:app --port 8000`"
+    );
+  }
+  return (
+    `⚠️ I couldn't reach the API at **${BACKEND_URL}**.\n` +
+    "Check that the API is running and `ALLOWED_ORIGINS` on the backend includes this site's URL."
+  );
+}
+
+function backendOfflineStatus() {
+  return IS_LOCAL_BACKEND ? "Backend offline — start uvicorn on port 8000" : `API offline — ${BACKEND_URL}`;
+}
 let DEMO_TOKEN = "demo-token";
 let notifications = [];
 
@@ -207,11 +226,8 @@ async function startSession(showWelcome = true) {
       playVoiceAndAnimate(welcome.replace(/\*\*/g, ""), "en");
     }
   } catch (e) {
-    setStatus("Backend offline — start uvicorn on port 8000", false);
-    appendBotMessage(
-      "⚠️ I couldn't connect to the backend. Please make sure the FastAPI server is running on http://localhost:8000",
-      null
-    );
+    setStatus(backendOfflineStatus(), false);
+    appendBotMessage(backendConnectionHelp(), null);
   }
 }
 
@@ -606,7 +622,9 @@ async function sendMessage() {
     const msg = e && e.message ? String(e.message) : "Unknown error";
     if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
       appendBotMessage(
-        "❌ Couldn't reach the backend. Start the API: `cd artha_backend && uvicorn main:app --port 8000`",
+        IS_LOCAL_BACKEND
+          ? "❌ Couldn't reach the backend. Start the API: `cd artha_backend && uvicorn main:app --port 8000`"
+          : `❌ Couldn't reach the API at ${BACKEND_URL}. Verify the server is up and CORS allows this domain.`,
         null
       );
     } else {
