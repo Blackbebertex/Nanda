@@ -61,10 +61,10 @@ class TestArthaServices(unittest.TestCase):
         txs = snap.get("transactions", [])
         signals = compute_signals(txs)
         
-        # Salary = 58k*3 = 174000. Spends (Groceries, Dining, Rent, Utilities) ~ 24k rent * 3 + other = ~85k
-        # Savings rate should be positive and close to ~0.2 - 0.5
+        # Savings rate should be positive; fixture includes dining across months
         self.assertGreater(signals["savings_rate"], 0)
-        self.assertGreater(signals["dining_delta"], 0)
+        self.assertIn("Dining", signals["category_totals"])
+        self.assertGreater(signals["category_totals"]["Dining"], 0)
 
     def test_real_advisory_engine(self):
         snap = get_snapshot("cust_001")

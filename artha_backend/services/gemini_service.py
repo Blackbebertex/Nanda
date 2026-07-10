@@ -56,7 +56,7 @@ class GeminiService:
 
   def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
     settings = get_settings()
-    self.api_key = api_key or settings.gemini_api_key
+    self.api_key = settings.gemini_api_key if api_key is None else api_key
     self.model = model or settings.gemini_model
     self.timeout = settings.gemini_timeout_seconds
     self.max_retries = settings.gemini_max_retries

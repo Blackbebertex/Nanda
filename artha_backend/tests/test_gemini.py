@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from services.gemini_service import GeminiService, GeminiMessage, reset_gemini_service
+from services.config import get_settings
 from agents.registry import reset_agents, get_agent
 from agents.chat_agent import ChatAgent
 
@@ -14,6 +15,7 @@ class TestGeminiService(unittest.TestCase):
   def setUp(self):
     reset_gemini_service()
     reset_agents()
+    get_settings.cache_clear()
 
   def test_not_configured_without_key(self):
     svc = GeminiService(api_key="")

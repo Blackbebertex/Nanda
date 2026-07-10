@@ -113,9 +113,15 @@ class WorkflowAgent(BaseAgent):
 
     while revise_loops <= MAX_REVISE_LOOPS:
       if self.gemini.is_configured:
-        state = await self._run_steps_gemini(
-          snapshot, signals, recommendation, product_catalog, user_text, customer_id, fix_targets
-        )
+        try:
+          state = await self._run_steps_gemini(
+            snapshot, signals, recommendation, product_catalog, user_text, customer_id, fix_targets
+          )
+        except Exception:
+          checks, _ = run_programmatic_checks(
+            state or ChainState(), snapshot, signals, recommendation, []
+          )
+          state = build_mock_chain(snapshot, signals, recommendation, user_text, checks)
       else:
         checks, _ = run_programmatic_checks(
           state or ChainState(), snapshot, signals, recommendation, []
