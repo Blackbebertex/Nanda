@@ -1,0 +1,64 @@
+{
+  "customerId": "cust_005",
+  "name": "Sneha Iyer",
+  "riskProfile": "Moderate",
+  "language": "en",
+  "consent": {
+    "consentId": "consent_005",
+    "scope": ["BALANCE", "TRANSACTIONS", "SUMMARY"],
+    "expiresAt": "2027-12-31"
+  },
+  "accounts": [
+    {
+      "accountId": "acc_savings_005",
+      "fipId": "HDFC-FIP",
+      "type": "SAVINGS",
+      "balance": 112000
+    },
+    {
+      "accountId": "acc_fd_505",
+      "fipId": "HDFC-FIP",
+      "type": "FD",
+      "balance": 300000,
+      "interestRate": 6.5,
+      "openedAt": "2024-03-01",
+      "lastTouchedAt": "2025-11-20"
+    },
+    {
+      "accountId": "acc_mf_505",
+      "fipId": "AXIS-FIP",
+      "type": "MF_SIP",
+      "fundName": "Children's Education Fund",
+      "sipAmount": 10000,
+      "balance": 248000,
+      "linkedGoalId": "goal_education_2032"
+    }
+  ],
+  "goals": [
+    {
+      "goalId": "goal_education_2032",
+      "name": "Child Education",
+      "targetAmount": 3000000,
+      "currentAmount": 248000,
+      "targetDate": "2032-06-01"
+    },
+    {
+      "goalId": "goal_home_2035",
+      "name": "Second Home",
+      "targetAmount": 4000000,
+      "currentAmount": 520000,
+      "targetDate": "2035-01-01"
+    }
+  ],
+  "transactions": [
+    {"txnId": "t_050", "accountId": "acc_savings_005", "amount": 185000.0, "type": "CREDIT", "category": "Salary", "narration": "Salary Credit HDFC", "date": "2026-05-31"},
+    {"txnId": "t_051", "accountId": "acc_savings_005", "amount": -42000.0, "type": "DEBIT", "category": "Rent", "narration": "Apartment rent", "date": "2026-06-01"},
+    {"txnId": "t_052", "accountId": "acc_savings_005", "amount": -10000.0, "type": "DEBIT", "category": "Investment", "narration": "SIP AXIS Children's Fund", "date": "2026-06-05"},
+    {"txnId": "t_053", "accountId": "acc_savings_005", "amount": -8500.0, "type": "DEBIT", "category": "Groceries", "narration": "Monthly groceries", "date": "2026-06-10"},
+    {"txnId": "t_054", "accountId": "acc_savings_005", "amount": -6000.0, "type": "DEBIT", "category": "Utilities", "narration": "School fees installment", "date": "2026-06-15"},
+    {"txnId": "t_055", "accountId": "acc_savings_005", "amount": 185000.0, "type": "CREDIT", "category": "Salary", "narration": "Salary Credit HDFC", "date": "2026-06-30"},
+    {"txnId": "t_056", "accountId": "acc_savings_005", "amount": -42000.0, "type": "DEBIT", "category": "Rent", "narration": "Apartment rent", "date": "2026-07-01"},
+    {"txnId": "t_057", "accountId": "acc_savings_005", "amount": -10000.0, "type": "DEBIT", "category": "Investment", "narration": "SIP AXIS Children's Fund", "date": "2026-07-02"},
+    {"txnId": "t_058", "accountId": "acc_savings_005", "amount": -2200.0, "type": "DEBIT", "category": "Dining", "narration": "Family outing", "date": "2026-07-05"}
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "customerId": "cust_006",
+  "name": "Vikram Singh",
+  "riskProfile": "Conservative",
+  "language": "hi",
+  "consent": {
+    "consentId": "consent_006",
+    "scope": ["BALANCE", "TRANSACTIONS", "SUMMARY"],
+    "expiresAt": "2027-12-31"
+  },
+  "accounts": [
+    {
+      "accountId": "acc_savings_006",
+      "fipId": "PNB-FIP",
+      "type": "SAVINGS",
+      "balance": 95000
+    },
+    {
+      "accountId": "acc_fd_606",
+      "fipId": "PNB-FIP",
+      "type": "FD",
+      "balance": 450000,
+      "interestRate": 6.8,
+      "openedAt": "2023-06-01",
+      "lastTouchedAt": "2024-12-01"
+    },
+    {
+      "accountId": "acc_mf_606",
+      "fipId": "SBI-FIP",
+      "type": "MF_SIP",
+      "fundName": "PPF-style Debt Fund",
+      "sipAmount": 3000,
+      "balance": 48000,
+      "linkedGoalId": "goal_daughter_wedding"
+    }
+  ],
+  "goals": [
+    {
+      "goalId": "goal_daughter_wedding",
+      "name": "Daughter's Wedding",
+      "targetAmount": 1200000,
+      "currentAmount": 498000,
+      "targetDate": "2028-12-01"
+    }
+  ],
+  "debts": 85000,
+  "transactions": [
+    {"txnId": "t_060", "accountId": "acc_savings_006", "amount": 72000.0, "type": "CREDIT", "category": "Salary", "narration": "Government salary PNB", "date": "2026-05-31"},
+    {"txnId": "t_061", "accountId": "acc_savings_006", "amount": -12000.0, "type": "DEBIT", "category": "Rent", "narration": "House rent", "date": "2026-06-01"},
+    {"txnId": "t_062", "accountId": "acc_savings_006", "amount": -3000.0, "type": "DEBIT", "category": "Investment", "narration": "SIP SBI Debt Fund", "date": "2026-06-05"},
+    {"txnId": "t_063", "accountId": "acc_savings_006", "amount": -2800.0, "type": "DEBIT", "category": "Groceries", "narration": "Local market", "date": "2026-06-12"},
+    {"txnId": "t_064", "accountId": "acc_savings_006", "amount": 72000.0, "type": "CREDIT", "category": "Salary", "narration": "Government salary PNB", "date": "2026-06-30"},
+    {"txnId": "t_065", "accountId": "acc_savings_006", "amount": -12000.0, "type": "DEBIT", "category": "Rent", "narration": "House rent", "date": "2026-07-01"},
+    {"txnId": "t_066", "accountId": "acc_savings_006", "amount": -3000.0, "type": "DEBIT", "category": "Investment", "narration": "SIP SBI Debt Fund", "date": "2026-07-02"},
+    {"txnId": "t_067", "accountId": "acc_savings_006", "amount": -900.0, "type": "DEBIT", "category": "Dining", "narration": "Dhaba lunch", "date": "2026-07-03"}
+  ]
+}

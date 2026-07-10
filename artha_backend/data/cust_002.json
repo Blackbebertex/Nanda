@@ -1,0 +1,42 @@
+{
+  "customerId": "cust_002",
+  "name": "Rahul Sharma",
+  "riskProfile": "Aggressive",
+  "language": "en",
+  "consent": {
+    "consentId": "consent_002",
+    "scope": ["BALANCE", "TRANSACTIONS", "SUMMARY"],
+    "expiresAt": "2027-12-31"
+  },
+  "accounts": [
+    {
+      "accountId": "acc_savings_002",
+      "fipId": "ICICI-FIP",
+      "type": "SAVINGS",
+      "balance": 150000
+    },
+    {
+      "accountId": "acc_mf_220",
+      "fipId": "GROWW-FIP",
+      "type": "MF_SIP",
+      "fundName": "Small Cap Equity Fund",
+      "sipAmount": 15000,
+      "balance": 450000,
+      "linkedGoalId": "goal_house_2030"
+    }
+  ],
+  "goals": [
+    {
+      "goalId": "goal_house_2030",
+      "name": "House Downpayment",
+      "targetAmount": 2500000,
+      "currentAmount": 450000,
+      "targetDate": "2030-01-01"
+    }
+  ],
+  "transactions": [
+    {"txnId": "t_026", "accountId": "acc_savings_002", "amount": 120000.0, "type": "CREDIT", "category": "Salary", "narration": "Salary Credit ICICI", "date": "2026-06-30"},
+    {"txnId": "t_027", "accountId": "acc_savings_002", "amount": -15000.0, "type": "DEBIT", "category": "Investment", "narration": "SIP GROWW MUTUAL FUND", "date": "2026-07-02"},
+    {"txnId": "t_028", "accountId": "acc_savings_002", "amount": -3000.0, "type": "DEBIT", "category": "Dining", "narration": "Dinner at Taj", "date": "2026-07-05"}
+  ]
+}

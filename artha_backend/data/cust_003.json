@@ -1,0 +1,64 @@
+{
+  "customerId": "cust_003",
+  "name": "Priya Mehta",
+  "riskProfile": "Conservative",
+  "language": "en",
+  "consent": {
+    "consentId": "consent_003",
+    "scope": ["BALANCE", "TRANSACTIONS", "SUMMARY"],
+    "expiresAt": "2027-12-31"
+  },
+  "accounts": [
+    {
+      "accountId": "acc_savings_003",
+      "fipId": "SBI-FIP",
+      "type": "SAVINGS",
+      "balance": 285000
+    },
+    {
+      "accountId": "acc_fd_903",
+      "fipId": "SBI-FIP",
+      "type": "FD",
+      "balance": 800000,
+      "interestRate": 7.0,
+      "openedAt": "2022-01-10",
+      "lastTouchedAt": "2023-08-15"
+    },
+    {
+      "accountId": "acc_mf_303",
+      "fipId": "HDFC-FIP",
+      "type": "MF_SIP",
+      "fundName": "Debt Hybrid Fund",
+      "sipAmount": 8000,
+      "balance": 192000,
+      "linkedGoalId": "goal_retirement_2040"
+    }
+  ],
+  "goals": [
+    {
+      "goalId": "goal_retirement_2040",
+      "name": "Retirement Corpus",
+      "targetAmount": 5000000,
+      "currentAmount": 992000,
+      "targetDate": "2040-03-01"
+    },
+    {
+      "goalId": "goal_medical_2028",
+      "name": "Parents Medical Fund",
+      "targetAmount": 500000,
+      "currentAmount": 180000,
+      "targetDate": "2028-06-01"
+    }
+  ],
+  "transactions": [
+    {"txnId": "t_030", "accountId": "acc_savings_003", "amount": 145000.0, "type": "CREDIT", "category": "Salary", "narration": "Salary Credit SBI", "date": "2026-05-31"},
+    {"txnId": "t_031", "accountId": "acc_savings_003", "amount": -35000.0, "type": "DEBIT", "category": "Rent", "narration": "Home loan EMI", "date": "2026-06-01"},
+    {"txnId": "t_032", "accountId": "acc_savings_003", "amount": -8000.0, "type": "DEBIT", "category": "Investment", "narration": "SIP HDFC MF", "date": "2026-06-05"},
+    {"txnId": "t_033", "accountId": "acc_savings_003", "amount": -4200.0, "type": "DEBIT", "category": "Groceries", "narration": "DMart monthly", "date": "2026-06-12"},
+    {"txnId": "t_034", "accountId": "acc_savings_003", "amount": -2800.0, "type": "DEBIT", "category": "Utilities", "narration": "Electricity and gas", "date": "2026-06-18"},
+    {"txnId": "t_035", "accountId": "acc_savings_003", "amount": 145000.0, "type": "CREDIT", "category": "Salary", "narration": "Salary Credit SBI", "date": "2026-06-30"},
+    {"txnId": "t_036", "accountId": "acc_savings_003", "amount": -35000.0, "type": "DEBIT", "category": "Rent", "narration": "Home loan EMI", "date": "2026-07-01"},
+    {"txnId": "t_037", "accountId": "acc_savings_003", "amount": -8000.0, "type": "DEBIT", "category": "Investment", "narration": "SIP HDFC MF", "date": "2026-07-03"},
+    {"txnId": "t_038", "accountId": "acc_savings_003", "amount": -1100.0, "type": "DEBIT", "category": "Dining", "narration": "Family dinner", "date": "2026-07-06"}
+  ]
+}
