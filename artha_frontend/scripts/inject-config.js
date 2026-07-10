@@ -4,6 +4,8 @@
 const fs = require("fs");
 const path = require("path");
 
+const DEFAULT_PROD_API = "https://artha-api-lsli.onrender.com";
+
 const raw =
   process.env.BACKEND_URL ||
   process.env.RENDER_EXTERNAL_URL ||
@@ -13,18 +15,20 @@ const raw =
 const isVercel = Boolean(process.env.VERCEL);
 
 if (isVercel && !raw) {
-  console.error(
-    "\n[artha-frontend] FATAL: Set BACKEND_URL in Vercel → Project → Settings → Environment Variables\n" +
-      "  Example: https://artha-api-lsli.onrender.com\n"
+  console.warn(
+    "\n[artha-frontend] WARNING: BACKEND_URL not set in Vercel env.\n" +
+      `  Using default: ${DEFAULT_PROD_API}\n` +
+      "  Set BACKEND_URL in Vercel → Settings → Environment Variables to override.\n"
   );
-  process.exit(1);
 }
 
 const backendUrl = raw
   ? (raw.startsWith("http") ? raw : `https://${raw}`)
-  : "http://localhost:8000";
+  : isVercel
+    ? DEFAULT_PROD_API
+    : "http://localhost:8000";
 
-const config = `// Auto-generated at build — do not edit
+const config = `// Auto-generated at build - do not edit
 window.ARTHA_CONFIG = {
   BACKEND_URL: "${backendUrl.replace(/\/$/, "")}",
 };
