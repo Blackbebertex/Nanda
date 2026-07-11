@@ -21,6 +21,17 @@ function backendConnectionHelp() {
 function backendOfflineStatus() {
   return IS_LOCAL_BACKEND ? "Backend offline — start uvicorn on port 8000" : `API offline — ${BACKEND_URL}`;
 }
+
+function startRenderKeepAlive() {
+  if (IS_LOCAL_BACKEND) return;
+  const ping = async () => {
+    try {
+      await fetch(`${BACKEND_URL}/v1/demo/hello`, { method: "GET", cache: "no-store" });
+    } catch (_) {}
+  };
+  ping();
+  window.setInterval(ping, 50000);
+}
 let DEMO_TOKEN = "demo-token";
 let notifications = [];
 
@@ -1009,6 +1020,7 @@ async function loadDemoCustomers() {
 
 // ---- Init --------------------------------------------------
 document.addEventListener("DOMContentLoaded", async () => {
+  startRenderKeepAlive();
   await loadDemoCustomers();
 
   document.getElementById("user_input").addEventListener("keydown", (e) => {

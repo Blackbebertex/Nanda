@@ -346,6 +346,17 @@ def list_demo_customers():
     }
 
 
+@app.get("/v1/demo/hello")
+def demo_hello():
+    """Lightweight keep-alive target for Render free tier (no auth)."""
+    return {
+        "message": "hello",
+        "service": "ARTHA API Gateway",
+        "status": "ok",
+        "time": datetime.datetime.now(timezone.utc).isoformat(),
+    }
+
+
 @app.get("/v1/admin/llm-telemetry")
 def llm_telemetry(user=Depends(get_admin_user)):
     return {"events": get_recent_events(50)}

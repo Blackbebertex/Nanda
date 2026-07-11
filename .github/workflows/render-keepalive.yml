@@ -1,0 +1,23 @@
+name: Render API Keep-Alive
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping ARTHA API
+        env:
+          RENDER_API_URL: ${{ secrets.RENDER_API_URL }}
+        run: |
+          URL="${RENDER_API_URL:-https://artha-api-lsli.onrender.com}"
+          URL="${URL%/}/v1/demo/hello"
+          echo "Pinging $URL"
+          curl -sf --max-time 60 "$URL"
+          echo "Keep-alive ok"

@@ -173,6 +173,8 @@ Add `GEMINI_API_KEY` under **artha-api → Environment** and redeploy.
 
 First request after idle may take 30–60 seconds. Refresh once.
 
+See **[RENDER_KEEPALIVE.md](./RENDER_KEEPALIVE.md)** for keep-alive options (50s loop, GitHub Actions, UptimeRobot).
+
 ---
 
 ## Optional: Docker deploy
